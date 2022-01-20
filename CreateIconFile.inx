@@ -5,7 +5,12 @@
 
     <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
 
-    <param type="path"   name="iconfilename" gui-text="Icon filename" mode="file_new" filetypes="*.ico">icon.ico</param>
+    <vbox>
+        <param type="bool"   name="savetempfiles" gui-text="Save temp files">false</param>
+        <param type="path"   name="savetempfolder" gui-text="Folder for saving tempfiles" mode="folder"></param>
+    </vbox>
+    <param type="path"   name="iconfilename" gui-text="Icon filename" mode="file_new" filetypes="ico">icon.ico</param>
+    
     <effect needs-live-preview="false">
         <object-type>all</object-type>
         <effects-menu>

@@ -25,6 +25,7 @@ from pathlib import Path
 from PIL import Image
 from inkex.command import inkscape
 from inkex.base import TempDirMixin
+from os import path
 
 class CreateIconFile (TempDirMixin, inkex.Effect):
 
@@ -34,6 +35,14 @@ class CreateIconFile (TempDirMixin, inkex.Effect):
         self.arg_parser.add_argument('-t', '--iconfilename',
             type = str, dest = 'iconfilename', default = 'newicon.ico',
             help = 'The selected icon filename with path')
+
+        self.arg_parser.add_argument('--savetempfiles',
+            type = inkex.Boolean, dest = 'savetempfiles', default = False,
+            help = 'If true the tempfiles are saved to the savetempfolder')
+
+        self.arg_parser.add_argument('--savetempfolder',
+            type = str, dest = 'savetempfolder', default = '',
+            help = 'Folder for saving temporary image files')
 
     def createIconFile(self, exportpar):
         # Write the global header
@@ -53,6 +62,7 @@ class CreateIconFile (TempDirMixin, inkex.Effect):
             data += bytesize.to_bytes(4, byteorder="little")
             data += offset.to_bytes(4, byteorder="little")
             offset += bytesize
+            img.close()
 
         # Write the image data to the icon file
         for exportfilepar in exportpar:
@@ -68,17 +78,26 @@ class CreateIconFile (TempDirMixin, inkex.Effect):
             # inkex.utils.debug("start create icon: " + self.options.iconfilename)
             
             # inkex.utils.debug("TempDir: " + self.tempdir)
+            tempdir = self.tempdir
+            if (self.options.savetempfiles):
+                if ((self.options.savetempfolder and not self.options.savetempfolder.isspace()) 
+                and path.exists(self.options.savetempfolder)):
+                    tempdir = self.options.savetempfolder
+                else:
+                    inkex.errormsg("The folder for saving the temporary images not found!")
+                    inkex.errormsg("Folder for temporary files: " + tempdir)
+
             export = [
-                {'filename': self.tempdir + "/" + "image_016.png", 'size': 16, 'dpi': 96},
-                {'filename': self.tempdir + "/" + "image_024.png", 'size': 24, 'dpi': 96},
-                {'filename': self.tempdir + "/" + "image_032.png", 'size': 32, 'dpi': 96},
-                {'filename': self.tempdir + "/" + "image_048.png", 'size': 48, 'dpi': 96},
-                {'filename': self.tempdir + "/" + "image_064.png", 'size': 64, 'dpi': 96},
-                {'filename': self.tempdir + "/" + "image_072.png", 'size': 72, 'dpi': 96},
-                {'filename': self.tempdir + "/" + "image_096.png", 'size': 96, 'dpi': 96},
-                {'filename': self.tempdir + "/" + "image_128.png", 'size': 128, 'dpi': 96},
-                {'filename': self.tempdir + "/" + "image_180.png", 'size': 180, 'dpi': 96},
-                {'filename': self.tempdir + "/" + "image_256.png", 'size': 256, 'dpi': 96},
+                {'filename': tempdir + "/" + "image_016.png", 'size': 16, 'dpi': 96},
+                {'filename': tempdir + "/" + "image_024.png", 'size': 24, 'dpi': 96},
+                {'filename': tempdir + "/" + "image_032.png", 'size': 32, 'dpi': 96},
+                {'filename': tempdir + "/" + "image_048.png", 'size': 48, 'dpi': 96},
+                {'filename': tempdir + "/" + "image_064.png", 'size': 64, 'dpi': 96},
+                {'filename': tempdir + "/" + "image_072.png", 'size': 72, 'dpi': 96},
+                {'filename': tempdir + "/" + "image_096.png", 'size': 96, 'dpi': 96},
+                {'filename': tempdir + "/" + "image_128.png", 'size': 128, 'dpi': 96},
+                {'filename': tempdir + "/" + "image_180.png", 'size': 180, 'dpi': 96},
+                {'filename': tempdir + "/" + "image_256.png", 'size': 256, 'dpi': 96},
             ]
 
             for exportfilepar in export:
